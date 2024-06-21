@@ -1,0 +1,32 @@
+[package]
+name = "snappy_src"
+version = "0.1.0"
+authors = ["Lachlan Deakin <ljdgit@gmail.com>"]
+edition = "2021"
+# rust-version = "1.60"
+description = "FFI bindings for snappy"
+documentation = "https://docs.rs/snappy_src"
+repository = "https://github.com/LDeakin/snappy_src"
+license = "MIT OR Apache-2.0"
+keywords = ["snappy", "compression"]
+categories = ["external-ffi-bindings", "compression"]
+exclude = [
+    ".github",
+    "snappy/cmake/**",
+    "snappy/testdata",
+    "snappy/snappy_benchmark.*",
+    "snappy/snappy-test.*",
+    "snappy/snappy_test_*.*",
+    "snappy/snappy_*_fuzzer.cc",
+    "snappy/snappy_unittest.cc",
+    "snappy/third_party",
+]
+
+[features]
+bindgen = ["dep:bindgen"]
+
+[build-dependencies]
+bindgen = { version = "0.69.4", optional = true }
+cc = "1.0"
+# regex = "1"
+# cmake = "0.1"
