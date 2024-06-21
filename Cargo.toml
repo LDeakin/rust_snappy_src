@@ -1,12 +1,12 @@
 [package]
 name = "snappy_src"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Lachlan Deakin <ljdgit@gmail.com>"]
 edition = "2021"
 # rust-version = "1.60"
 description = "FFI bindings for snappy"
 documentation = "https://docs.rs/snappy_src"
-repository = "https://github.com/LDeakin/snappy_src"
+repository = "https://github.com/LDeakin/rust_snappy_src"
 license = "MIT OR Apache-2.0"
 keywords = ["snappy", "compression"]
 categories = ["external-ffi-bindings", "compression"]
