@@ -31,6 +31,6 @@ link-cplusplus = { version = "1.0.9" }
 
 [build-dependencies]
 bindgen = { version = "0.69.4", optional = true }
-cc = "1.0"
+cc = "1.0.99"
 # regex = "1"
 # cmake = "0.1"
