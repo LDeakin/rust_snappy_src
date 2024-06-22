@@ -28,7 +28,6 @@ fn compile_snappy_cc(dst: &std::path::Path) {
     build
         .cpp(true)
         .std("c++14")
-        .warnings(false)
         .include("snappy")
         .include(dst)
         .file("snappy/snappy-c.cc")
