@@ -1,23 +1,38 @@
+fn get_snappy_version() -> (u32, u32, u32) {
+    let version = env!("CARGO_PKG_VERSION");
+    let versions = version.split("+snappy.").collect::<Vec<_>>();
+    let snappy_version = match &versions[..] {
+        &[_crate_version, snappy_version] => snappy_version,
+        _ => panic!("Could not identify snappy version from crate version"),
+    };
+    let snappy_versions = snappy_version.split(".").collect::<Vec<_>>();
+    match &snappy_versions[..] {
+        &[major, minor, patch] => (
+            major
+                .parse::<u32>()
+                .expect("Snappy major version is not an integer"),
+            minor
+                .parse::<u32>()
+                .expect("Snappy minor version is not an integer"),
+            patch
+                .parse::<u32>()
+                .expect("Snappy patch version is not an integer"),
+        ),
+        _ => panic!("Could not identify snappy version from crate version"),
+    }
+}
+
 fn generate_stubs_public(out_path: &std::path::Path, tool: &cc::Tool) {
-    // let snappy_cmakelists = std::fs::read_to_string("snappy/CMakeLists.txt")
-    //     .expect("Could not find snappy/CMakeLists.txt. Update submodules?");
-    // let re = regex::Regex::new(r"project\(Snappy VERSION (\d+).(\d+).(\d+)").expect("Valid regex");
-    // let caps = re
-    //     .captures(&snappy_cmakelists)
-    //     .expect("Can't find snappy version?");
-    // let major = caps.get(1).unwrap().as_str();
-    // let minor = caps.get(2).unwrap().as_str();
-    // let patch = caps.get(3).unwrap().as_str();
+    let (snappy_ver_major, snappy_ver_minor, snappy_ver_patch) = get_snappy_version();
     let snappy_stubs_public = std::fs::read_to_string("snappy/snappy-stubs-public.h.in")
         .expect("Could not find snappy/snappy-stubs-public.h.in. Update submodules?")
         .replace(
             "${HAVE_SYS_UIO_H_01}",
             if tool.is_like_msvc() { "0" } else { "1" },
         )
-        .replace("${PROJECT_VERSION_MAJOR}", "0") // unused
-        .replace("${PROJECT_VERSION_MINOR}", "0") // unused
-        .replace("${PROJECT_VERSION_PATCH}", "0") // unused
-    ;
+        .replace("${PROJECT_VERSION_MAJOR}", &snappy_ver_major.to_string())
+        .replace("${PROJECT_VERSION_MINOR}", &snappy_ver_minor.to_string())
+        .replace("${PROJECT_VERSION_PATCH}", &snappy_ver_patch.to_string());
     let out_path = out_path.join("snappy-stubs-public.h");
     std::fs::write(&out_path, snappy_stubs_public)
         .unwrap_or_else(|_| panic!("Unable to write {out_path:?}"));
