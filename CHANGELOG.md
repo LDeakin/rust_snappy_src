@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+ - Cleanup `build.rs`
+
+### Fixed
+ - Add `links=snappy` to `Cargo.toml`
+ - Add `cargo:root` and `cargo:include`
+   - Dependent crates get `DEP_SNAPPY_ROOT` and `DEP_SNAPPY_INCLUDE` in their build environment
+
 ## [0.1.1] - 2024-06-22
 
 ### Added

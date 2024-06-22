@@ -23,60 +23,74 @@ fn generate_stubs_public(out_path: &std::path::Path, tool: &cc::Tool) {
         .unwrap_or_else(|_| panic!("Unable to write {out_path:?}"));
 }
 
-fn main() {
-    println!("cargo:rerun-if-changed=build.rs");
-    println!("cargo:rerun-if-changed=snappy");
-    println!("cargo:rustc-link-lib=static=snappy");
-
-    // Compile snappy with cmake
-    // let mut config = cmake::Config::new("snappy");
-    // config.define("SNAPPY_BUILD_TESTS", "OFF");
-    // config.define("SNAPPY_BUILD_BENCHMARKS", "OFF");
-    // let target_features = std::env::var("CARGO_CFG_TARGET_FEATURE")
-    //     .unwrap_or_default()
-    //     .split(',')
-    //     .collect::<Vec<_>>();
-    // if target_features.contains(&"avx2") {
-    //     config.define("SNAPPY_REQUIRE_AVX2", "ON");
-    // } else if target_features.contains(&"avx") {
-    //     config.define("SNAPPY_REQUIRE_AVX", "ON");
-    // }
-    // let dst = config.build();
-    // println!("cargo:rustc-link-search=native={}/lib", dst.display());
-
-    // Compile snappy with CC
-    let out_path = std::path::PathBuf::from(std::env::var("OUT_DIR").unwrap());
+fn compile_snappy_cc(dst: &std::path::Path) {
     let mut build = cc::Build::new();
     build
         .cpp(true)
         .std("c++14")
         .warnings(false)
         .include("snappy")
-        .include(&out_path)
+        .include(dst)
         .file("snappy/snappy-c.cc")
         .file("snappy/snappy-sinksource.cc")
         .file("snappy/snappy-stubs-internal.cc")
         .file("snappy/snappy.cc");
 
     let tool = build.get_compiler();
-    generate_stubs_public(&out_path, &tool);
+    generate_stubs_public(dst, &tool);
 
     build.compile("snappy");
+}
+
+// fn compile_snappy_cmake() {
+//     let mut config = cmake::Config::new("snappy");
+//     config.define("SNAPPY_BUILD_TESTS", "OFF");
+//     config.define("SNAPPY_BUILD_BENCHMARKS", "OFF");
+//     let target_features = std::env::var("CARGO_CFG_TARGET_FEATURE")
+//         .unwrap_or_default()
+//         .split(',')
+//         .collect::<Vec<_>>();
+//     if target_features.contains(&"avx2") {
+//         config.define("SNAPPY_REQUIRE_AVX2", "ON");
+//     } else if target_features.contains(&"avx") {
+//         config.define("SNAPPY_REQUIRE_AVX", "ON");
+//     }
+//     let dst = config.build();
+//     println!("cargo:rustc-link-search=native={}/lib", dst.display());
+// }
+
+#[cfg(feature = "bindgen")]
+fn generate_bindings() {
+    let manifest_dir = std::path::PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap());
+    let bindings = bindgen::Builder::default()
+        .header("snappy/snappy-c.h")
+        .blocklist_type("max_align_t")
+        .blocklist_type("wchar_t")
+        .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
+        .generate()
+        .expect("Unable to generate bindings");
+
+    let out_path = manifest_dir.join("bindings.rs");
+    bindings
+        .write_to_file(&out_path)
+        .expect(&format!("Couldn't write bindings to {out_path:?}!"));
+}
+
+fn main() {
+    // println!("cargo:rerun-if-changed=build.rs");
+    // println!("cargo:rerun-if-changed=snappy");
+    println!("cargo:rustc-link-lib=snappy");
+
+    let dst = std::path::PathBuf::from(std::env::var_os("OUT_DIR").unwrap());
+
+    compile_snappy_cc(&dst);
 
     #[cfg(feature = "bindgen")]
-    {
-        let manifest_dir = std::path::PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap());
-        let bindings = bindgen::Builder::default()
-            .header("snappy/snappy-c.h")
-            .blocklist_type("max_align_t")
-            .blocklist_type("wchar_t")
-            .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
-            .generate()
-            .expect("Unable to generate bindings");
+    generate_bindings();
 
-        let out_path = manifest_dir.join("bindings.rs");
-        bindings
-            .write_to_file(&out_path)
-            .expect(&format!("Couldn't write bindings to {out_path:?}!"));
-    }
+    std::fs::create_dir_all(dst.join("include")).unwrap();
+    std::fs::copy("snappy/snappy-c.h", dst.join("include/snappy-c.h")).unwrap();
+
+    println!("cargo:root={}", dst.to_str().unwrap());
+    println!("cargo:include={}/include", dst.to_str().unwrap());
 }
