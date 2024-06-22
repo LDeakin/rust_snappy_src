@@ -90,7 +90,7 @@ fn generate_bindings() {
 fn main() {
     // println!("cargo:rerun-if-changed=build.rs");
     // println!("cargo:rerun-if-changed=snappy");
-    println!("cargo:rustc-link-lib=snappy");
+    println!("cargo:rustc-link-lib=static=snappy");
 
     let dst = std::path::PathBuf::from(std::env::var_os("OUT_DIR").unwrap());
 

@@ -26,6 +26,9 @@ links = "snappy"
 [features]
 bindgen = ["dep:bindgen"]
 
+[dependencies]
+link-cplusplus = { version = "1.0.9" }
+
 [build-dependencies]
 bindgen = { version = "0.69.4", optional = true }
 cc = "1.0"
