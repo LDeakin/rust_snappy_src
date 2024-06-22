@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.3+snappy.1.2.1] - 2024-06-22
+
+### Fixed
+ - Link C++ and ensure static snappy is included only ([#2](https://github.com/LDeakin/rust_snappy_src/pull/2) by [@mulimoen])
+ - Make sure cc/Build::std is available ([#3](https://github.com/LDeakin/rust_snappy_src/pull/3) by [@mulimoen])
+
 ## [0.2.2+snappy.1.2.1] - 2024-06-22
 
 ### Changed
@@ -49,9 +55,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial release
 - Snappy: **1.2.1** (2024/05/22)
 
-[unreleased]: https://github.com/LDeakin/rust_snappy_src/compare/v0.2.2+snappy.1.2.1...HEAD
+[unreleased]: https://github.com/LDeakin/rust_snappy_src/compare/v0.2.3+snappy.1.2.1...HEAD
+[0.2.3+snappy.1.2.1]: https://github.com/LDeakin/rust_snappy_src/releases/tag/v0.2.3+snappy.1.2.1
 [0.2.2+snappy.1.2.1]: https://github.com/LDeakin/rust_snappy_src/releases/tag/v0.2.2+snappy.1.2.1
 [0.2.1+snappy.1.2.1]: https://github.com/LDeakin/rust_snappy_src/releases/tag/v0.2.1+snappy.1.2.1
 [0.2.0+snappy.1.2.1]: https://github.com/LDeakin/rust_snappy_src/releases/tag/v0.2.0+snappy.1.2.1
 [0.1.1]: https://github.com/LDeakin/rust_snappy_src/releases/tag/v0.1.1
 [0.1.0]: https://github.com/LDeakin/rust_snappy_src/releases/tag/v0.1.0
+
+[@mulimoen]: https://github.com/mulimoen

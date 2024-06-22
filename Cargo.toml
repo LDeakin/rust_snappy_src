@@ -1,6 +1,6 @@
 [package]
 name = "snappy_src"
-version = "0.2.2+snappy.1.2.1"
+version = "0.2.3+snappy.1.2.1"
 authors = ["Lachlan Deakin <ljdgit@gmail.com>"]
 edition = "2021"
 # rust-version = "1.60"
@@ -32,5 +32,4 @@ link-cplusplus = { version = "1.0.9" }
 [build-dependencies]
 bindgen = { version = "0.69.4", optional = true }
 cc = "1.0.99"
-# regex = "1"
 # cmake = "0.1"
