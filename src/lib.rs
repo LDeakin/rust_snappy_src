@@ -2,8 +2,6 @@
 //!
 //! Raw Rust bindings to Snappy (<https://github.com/google/snappy>), a fast compressor/decompressor.
 //!
-//! Snappy version: **1.2.1** (2024/05/22)
-//!
 //! ## Cargo.toml
 //! ```toml
 //! [dependencies]

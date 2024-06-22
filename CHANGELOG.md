@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
- - Add snappy version to crate version
+ - Add snappy version to crate version and remove from docs
 
 ### Changed
  - Cleanup `build.rs`
