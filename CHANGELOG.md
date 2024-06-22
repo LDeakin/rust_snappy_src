@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+ - Remove out-of-date `Cargo.toml` advice from docs
+
 ## [0.2.0+snappy.1.2.1] - 2024-06-22
 
 ### Added
