@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+ - CI: Test Rust toolchain `stable-msvc` and `stable-gnu` on windows
+
 ## [0.2.1+snappy.1.2.1] - 2024-06-22
 
 ### Fixed
