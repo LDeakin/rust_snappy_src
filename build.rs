@@ -22,14 +22,12 @@ fn get_snappy_version() -> (u32, u32, u32) {
     }
 }
 
-fn generate_stubs_public(out_path: &std::path::Path, tool: &cc::Tool) {
+fn generate_stubs_public(out_path: &std::path::Path) {
     let (snappy_ver_major, snappy_ver_minor, snappy_ver_patch) = get_snappy_version();
+    let unix = std::env::var("CARGO_CFG_TARGET_FAMILY").as_deref() == Ok("unix");
     let snappy_stubs_public = std::fs::read_to_string("snappy/snappy-stubs-public.h.in")
         .expect("Could not find snappy/snappy-stubs-public.h.in. Update submodules?")
-        .replace(
-            "${HAVE_SYS_UIO_H_01}",
-            if tool.is_like_msvc() { "0" } else { "1" },
-        )
+        .replace("${HAVE_SYS_UIO_H_01}", if unix { "1" } else { "0" })
         .replace("${PROJECT_VERSION_MAJOR}", &snappy_ver_major.to_string())
         .replace("${PROJECT_VERSION_MINOR}", &snappy_ver_minor.to_string())
         .replace("${PROJECT_VERSION_PATCH}", &snappy_ver_patch.to_string());
@@ -50,8 +48,7 @@ fn compile_snappy_cc(dst: &std::path::Path) {
         .file("snappy/snappy-stubs-internal.cc")
         .file("snappy/snappy.cc");
 
-    let tool = build.get_compiler();
-    generate_stubs_public(dst, &tool);
+    generate_stubs_public(dst);
 
     build.compile("snappy");
 }
