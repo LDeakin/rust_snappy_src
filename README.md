@@ -14,6 +14,12 @@ Snappy version: **1.2.1** (2024/05/22)
 snappy_src = "0.1.0"
 ```
 
+## Bindings
+This library includes a pre-generated `bindings.rs` file for `snappy-c.h`. New bindings can be generated using the bindgen feature:
+```bash
+cargo build --features bindgen
+```
+
 ## Licence
 `snappy_src` is licensed under either of
  - the Apache License, Version 2.0 [LICENSE-APACHE](./LICENCE-APACHE) or <http://www.apache.org/licenses/LICENSE-2.0> or

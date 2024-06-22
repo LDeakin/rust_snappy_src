@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
  - Cleanup `build.rs`
  - Show C++ warnings in build
+ - Add note about generating bindings in docs
 
 ### Fixed
  - Add `links=snappy` to `Cargo.toml`
