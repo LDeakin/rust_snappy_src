@@ -84,7 +84,7 @@ fn generate_bindings() {
     let out_path = manifest_dir.join("bindings.rs");
     bindings
         .write_to_file(&out_path)
-        .expect(&format!("Couldn't write bindings to {out_path:?}!"));
+        .unwrap_or_else(|_| panic!("Couldn't write bindings to {out_path:?}!"));
 }
 
 fn main() {
