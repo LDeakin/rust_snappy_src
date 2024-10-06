@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+ - Bump `bindgen` to 0.70
+
 ## [0.2.3+snappy.1.2.1] - 2024-06-22
 
 ### Fixed
