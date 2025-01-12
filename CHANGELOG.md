@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
  - Bump `bindgen` to 0.71
+ - Explicitly set the MSRV to 1.63 (the effective MSRV of 0.2.3)
 
 ## [0.2.3+snappy.1.2.1] - 2024-06-22
 
