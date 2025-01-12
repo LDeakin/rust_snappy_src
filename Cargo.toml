@@ -1,6 +1,6 @@
 [package]
 name = "snappy_src"
-version = "0.2.3+snappy.1.2.1"
+version = "0.2.4+snappy.1.2.1"
 authors = ["Lachlan Deakin <ljdgit@gmail.com>"]
 edition = "2021"
 rust-version = "1.63"
