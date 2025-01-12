@@ -78,6 +78,7 @@ fn generate_bindings() {
         .blocklist_type("max_align_t")
         .blocklist_type("wchar_t")
         .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
+        .rust_target(unsafe { bindgen::RustTarget::stable(63, 0).unwrap_unchecked() })
         .generate()
         .expect("Unable to generate bindings");
 
