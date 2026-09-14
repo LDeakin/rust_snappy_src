@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Bump `snappy` to 1.3.0
+  - Adds `snappy_compress_with_level` function
+  - Adds `SNAPPY_MIN_COMPRESSION_LEVEL` and `SNAPPY_MAX_COMPRESSION_LEVEL` constants
+
 ## [0.2.5+snappy.1.2.2] - 2025-03-27
 
 ### Changed
