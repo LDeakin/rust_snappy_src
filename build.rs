@@ -72,6 +72,13 @@ fn compile_snappy_cc(dst: &std::path::Path) {
 
 #[cfg(feature = "bindgen")]
 fn generate_bindings() {
+    // `snappy_status` is a plain C enum, so its underlying type is signed under
+    // the MSVC ABI and unsigned under the Itanium C++ ABI. `bindings.rs` is
+    // shared by every target, so swap whichever typedef bindgen emitted for the
+    // host target for a `cfg` that covers both.
+    const MSVC: &str = "pub type snappy_status = ::std::os::raw::c_int;";
+    const ITANIUM: &str = "pub type snappy_status = ::std::os::raw::c_uint;";
+
     let manifest_dir = std::path::PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap());
     let bindings = bindgen::Builder::default()
         .header("snappy/snappy-c.h")
@@ -79,26 +86,19 @@ fn generate_bindings() {
         .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
         .rust_target(unsafe { bindgen::RustTarget::stable(63, 0).unwrap_unchecked() })
         .generate()
-        .expect("Unable to generate bindings");
+        .expect("Unable to generate bindings")
+        .to_string();
 
-    const SNAPPY_STATUS_MSVC: &str = "pub type snappy_status = ::std::os::raw::c_int;";
-    const SNAPPY_STATUS_ITANIUM: &str = "pub type snappy_status = ::std::os::raw::c_uint;";
-    const SNAPPY_STATUS_CFG: &str = r#"#[cfg(target_env = "msvc")]
-pub type snappy_status = ::std::os::raw::c_int;
-#[cfg(not(target_env = "msvc"))]
-pub type snappy_status = ::std::os::raw::c_uint;"#;
-
-    let bindings = bindings.to_string();
-    let generated = if std::env::var("CARGO_CFG_TARGET_ENV").as_deref() == Ok("msvc") {
-        SNAPPY_STATUS_MSVC
-    } else {
-        SNAPPY_STATUS_ITANIUM
-    };
-    assert!(
-        bindings.contains(generated),
-        "`{generated}` not found, the `snappy_status` handling in build.rs is stale"
+    let cfg = format!(
+        "#[cfg(target_env = \"msvc\")]\n{MSVC}\n#[cfg(not(target_env = \"msvc\"))]\n{ITANIUM}"
     );
-    let bindings = bindings.replace(generated, SNAPPY_STATUS_CFG);
+    let bindings = if bindings.contains(MSVC) {
+        bindings.replace(MSVC, &cfg)
+    } else if bindings.contains(ITANIUM) {
+        bindings.replace(ITANIUM, &cfg)
+    } else {
+        panic!("`snappy_status` typedef not found, the handling in build.rs is stale")
+    };
 
     let out_path = manifest_dir.join("bindings.rs");
     std::fs::write(&out_path, bindings)
