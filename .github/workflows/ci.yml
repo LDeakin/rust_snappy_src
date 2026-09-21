@@ -21,7 +21,7 @@ jobs:
           - {os: windows-latest, toolchain: stable-gnu}
           - {os: windows-11-arm, toolchain: stable-msvc}
           - {os: macos-latest, toolchain: stable}  # aarch64
-          - {os: macos-13, toolchain: stable}      # x86_64
+          - {os: macos-15-intel, toolchain: stable} # x86_64
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
