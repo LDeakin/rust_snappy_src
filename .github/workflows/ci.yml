@@ -33,6 +33,12 @@ jobs:
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.toolchain }}
+          # bindgen formats its output with rustfmt, and silently emits
+          # unformatted tokens if it is missing. This action installs the
+          # minimal profile, which excludes rustfmt, so request it explicitly:
+          # otherwise only the toolchains preinstalled on the runner image have
+          # it and `bindings.rs` is generated inconsistently across jobs.
+          components: rustfmt
       # Resolve dependencies to the newest versions compatible with the
       # `rust-version` in Cargo.toml, rather than the newest versions overall
       - name: Generate an MSRV-compatible lockfile
@@ -44,8 +50,8 @@ jobs:
       # `--locked` on MSRV builds so a failure to respect the lockfile above is loud
       - run: cargo build ${{ matrix.msrv && '--locked' || '' }} && cargo test ${{ matrix.msrv && '--locked' || '' }}
 
-      # bindgen needs libclang, and a toolchain newer than the MSRV, so the
-      # checks below are skipped on the MSRV job.
+      # bindgen needs libclang and rustfmt, and a toolchain newer than the
+      # MSRV, so the checks below are skipped on the MSRV job.
       # NOTE: the chocolatey fallback only provides an x86_64 libclang, which an
       # aarch64 bindgen cannot load. It is a no-op when the runner image already
       # ships LLVM, which is the case for windows-latest.
