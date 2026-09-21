@@ -72,19 +72,36 @@ fn compile_snappy_cc(dst: &std::path::Path) {
 
 #[cfg(feature = "bindgen")]
 fn generate_bindings() {
+    // `snappy_status` is a plain C enum, so its underlying type is signed under
+    // the MSVC ABI and unsigned under the Itanium C++ ABI. `bindings.rs` is
+    // shared by every target, so swap whichever typedef bindgen emitted for the
+    // host target for a `cfg` that covers both.
+    const MSVC: &str = "pub type snappy_status = ::std::os::raw::c_int;";
+    const ITANIUM: &str = "pub type snappy_status = ::std::os::raw::c_uint;";
+
     let manifest_dir = std::path::PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap());
     let bindings = bindgen::Builder::default()
         .header("snappy/snappy-c.h")
-        .blocklist_type("max_align_t")
-        .blocklist_type("wchar_t")
+        .allowlist_file(r".*snappy-c\.h")
         .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
         .rust_target(unsafe { bindgen::RustTarget::stable(63, 0).unwrap_unchecked() })
         .generate()
-        .expect("Unable to generate bindings");
+        .expect("Unable to generate bindings")
+        .to_string();
+
+    let cfg = format!(
+        "#[cfg(target_env = \"msvc\")]\n{MSVC}\n#[cfg(not(target_env = \"msvc\"))]\n{ITANIUM}"
+    );
+    let bindings = if bindings.contains(MSVC) {
+        bindings.replace(MSVC, &cfg)
+    } else if bindings.contains(ITANIUM) {
+        bindings.replace(ITANIUM, &cfg)
+    } else {
+        panic!("`snappy_status` typedef not found, the handling in build.rs is stale")
+    };
 
     let out_path = manifest_dir.join("bindings.rs");
-    bindings
-        .write_to_file(&out_path)
+    std::fs::write(&out_path, bindings)
         .unwrap_or_else(|_| panic!("Couldn't write bindings to {out_path:?}!"));
 }
 

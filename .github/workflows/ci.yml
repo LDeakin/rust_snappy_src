@@ -15,12 +15,14 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - {os: ubuntu, toolchain: stable}
-          - {os: ubuntu, toolchain: "1.63", msrv: true}
-          - {os: windows, toolchain: stable-msvc}
-          - {os: windows, toolchain: stable-gnu}
-          - {os: macos, toolchain: stable}
-    runs-on: ${{ matrix.os }}-latest
+          - {os: ubuntu-latest, toolchain: stable}
+          - {os: ubuntu-latest, toolchain: "1.63", msrv: true}
+          - {os: windows-latest, toolchain: stable-msvc}
+          - {os: windows-latest, toolchain: stable-gnu}
+          - {os: windows-11-arm, toolchain: stable-msvc}
+          - {os: macos-latest, toolchain: stable}  # aarch64
+          - {os: macos-15-intel, toolchain: stable} # x86_64
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -31,6 +33,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.toolchain }}
+          components: rustfmt
       # Resolve dependencies to the newest versions compatible with the
       # `rust-version` in Cargo.toml, rather than the newest versions overall
       - name: Generate an MSRV-compatible lockfile
@@ -41,3 +44,17 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       # `--locked` on MSRV builds so a failure to respect the lockfile above is loud
       - run: cargo build ${{ matrix.msrv && '--locked' || '' }} && cargo test ${{ matrix.msrv && '--locked' || '' }}
+
+      - name: Locate libclang
+        if: ${{ !matrix.msrv && runner.os == 'Windows' }}
+        shell: pwsh
+        run: |
+          $llvm = Join-Path $env:ProgramFiles 'LLVM\bin'
+          if (-not (Test-Path (Join-Path $llvm 'libclang.dll'))) {
+            choco install llvm --no-progress -y
+          }
+          "LIBCLANG_PATH=$llvm" >> $env:GITHUB_ENV
+
+      - name: Check that bindings.rs is up to date
+        if: ${{ !matrix.msrv }}
+        run: cargo build --features bindgen && git diff --exit-code -- bindings.rs
