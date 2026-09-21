@@ -75,16 +75,33 @@ fn generate_bindings() {
     let manifest_dir = std::path::PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap());
     let bindings = bindgen::Builder::default()
         .header("snappy/snappy-c.h")
-        .blocklist_type("max_align_t")
-        .blocklist_type("wchar_t")
+        .allowlist_file(r".*snappy-c\.h")
         .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
         .rust_target(unsafe { bindgen::RustTarget::stable(63, 0).unwrap_unchecked() })
         .generate()
         .expect("Unable to generate bindings");
 
+    const SNAPPY_STATUS_MSVC: &str = "pub type snappy_status = ::std::os::raw::c_int;";
+    const SNAPPY_STATUS_ITANIUM: &str = "pub type snappy_status = ::std::os::raw::c_uint;";
+    const SNAPPY_STATUS_CFG: &str = r#"#[cfg(target_env = "msvc")]
+pub type snappy_status = ::std::os::raw::c_int;
+#[cfg(not(target_env = "msvc"))]
+pub type snappy_status = ::std::os::raw::c_uint;"#;
+
+    let bindings = bindings.to_string();
+    let generated = if std::env::var("CARGO_CFG_TARGET_ENV").as_deref() == Ok("msvc") {
+        SNAPPY_STATUS_MSVC
+    } else {
+        SNAPPY_STATUS_ITANIUM
+    };
+    assert!(
+        bindings.contains(generated),
+        "`{generated}` not found, the `snappy_status` handling in build.rs is stale"
+    );
+    let bindings = bindings.replace(generated, SNAPPY_STATUS_CFG);
+
     let out_path = manifest_dir.join("bindings.rs");
-    bindings
-        .write_to_file(&out_path)
+    std::fs::write(&out_path, bindings)
         .unwrap_or_else(|_| panic!("Couldn't write bindings to {out_path:?}!"));
 }
 

@@ -5,6 +5,9 @@ pub const SNAPPY_MAX_COMPRESSION_LEVEL: u32 = 2;
 pub const snappy_status_SNAPPY_OK: snappy_status = 0;
 pub const snappy_status_SNAPPY_INVALID_INPUT: snappy_status = 1;
 pub const snappy_status_SNAPPY_BUFFER_TOO_SMALL: snappy_status = 2;
+#[cfg(target_env = "msvc")]
+pub type snappy_status = ::std::os::raw::c_int;
+#[cfg(not(target_env = "msvc"))]
 pub type snappy_status = ::std::os::raw::c_uint;
 extern "C" {
     pub fn snappy_compress(

@@ -10,6 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Bump `snappy` to 1.3.1
 
+### Fixed
+- Restrict `bindgen` output to `snappy-c.h` items so bindings regenerated on Windows/MSVC do not leak CRT declarations
+- `snappy_status` now matches the platform ABI: `std::os::raw::c_int` on MSVC targets, `c_uint` elsewhere
+  - Previously it was `c_uint` on all targets
+
 ## [0.2.6+snappy.1.3.0](https://github.com/LDeakin/rust_snappy_src/releases/tag/v0.2.6+snappy.1.3.0) - 2026-09-15
 
 ### Added
